@@ -4,21 +4,19 @@ Find the cheapest way for two (or more) people, leaving from different airports,
 
 ## Setup
 
-```bash
-python3 -m venv .venv
-.venv/bin/pip install -e '.[dev]'
-```
+Install [uv](https://docs.astral.sh/uv/) once. `uv run` then installs the right Python and dependencies
+(pinned in `uv.lock`) automatically the first time.
 
 ## Use
 
 1. Edit [`config.yaml`](config.yaml): dates, flexibility, cities, travelers, time rules, filters. Every option is commented there.
 2. Check how many searches it will do:
    ```bash
-   .venv/bin/python -m flight_planner --dry-run
+   uv run flight-planner --dry-run
    ```
 3. Run it:
    ```bash
-   .venv/bin/python -m flight_planner            # or: -c other-config.yaml
+   uv run flight-planner            # or: -c other-config.yaml
    ```
 4. Open `results/<timestamp>/SUMMARY.md`. A Markdown previewer such as VS Code's (Ctrl+Shift+V) renders the tables and links.
 
@@ -83,5 +81,5 @@ Use the Skyscanner and Google links in each file to confirm a price before booki
 ## Tests
 
 ```bash
-.venv/bin/pytest
+uv run pytest
 ```

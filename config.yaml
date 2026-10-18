@@ -1,7 +1,7 @@
 # ---------------------------------------------------------------------------
 # Flight planner configuration — the only file you need to edit.
-# Run:  .venv/bin/python -m flight_planner            (full search)
-#       .venv/bin/python -m flight_planner --dry-run  (just count searches)
+# Run:  uv run flight-planner            (full search)
+#       uv run flight-planner --dry-run  (just count searches)
 # ---------------------------------------------------------------------------
 
 currency: EUR
