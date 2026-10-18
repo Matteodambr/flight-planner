@@ -1,0 +1,100 @@
+# ---------------------------------------------------------------------------
+# Flight planner configuration — the only file you need to edit.
+# Run:  .venv/bin/python -m flight_planner            (full search)
+#       .venv/bin/python -m flight_planner --dry-run  (just count searches)
+# ---------------------------------------------------------------------------
+
+currency: EUR
+
+trip:
+  outbound_date: 2026-12-04      # both travelers fly out this day...
+  return_date: 2026-12-07        # ...and back this day
+  # Flexibility: a number N means ±N days; [min, max] means a range relative to the date.
+  flex_out: [0, 1]               # outbound on 4 or 5 Dec
+  flex_ret: [-1, 0]              # return on 6 or 7 Dec
+  min_nights: 2                  # → windows 4–6, 4–7 (requested), 5–7
+
+# Candidate destinations. List every airport you're happy to use for that city;
+# each traveler may end up using a different one (shown in the results).
+cities:
+  - name: Vienna
+    airports: [VIE]
+  - name: Brussels
+    airports: [BRU, CRL]          # CRL = Charleroi, ~1h by bus from the centre
+  - name: Tallinn
+    airports: [TLL]
+  - name: Riga
+    airports: [RIX]
+  - name: Vilnius
+    airports: [VNO]
+  - name: Amsterdam
+    airports: [AMS]
+  - name: Warsaw
+    airports: [WAW, WMI]          # WMI = Modlin, ~1h from the centre
+  - name: Budapest
+    airports: [BUD]
+  - name: Dublin
+    airports: [DUB]
+
+travelers:
+  - name: Matteo
+    from: [LIN, MXP, BGY]        # any Milan airport
+    to: [LIN, MXP, BGY]
+  - name: Elena
+    from: [BRE]             # Bremen or Hamburg (can leave from one and return to the other)
+    to: [BRE]
+  # Per-traveler options (merged on top of the global ones below), e.g.:
+  #   time_rules:
+  #     outbound:
+  #       default: {earliest_departure: "06:00"}
+  #       by_date: {2026-12-04: {earliest_departure: "17:00"}}   # working that day
+  #   filters: {max_stops: 0}
+
+# Time rules for everyone. Keys: earliest_departure, latest_departure,
+# earliest_arrival, latest_arrival — local airport time, "HH:MM".
+# latest_arrival is relative to the departure date ("25:30" = 01:30 next day).
+# Precedence: global default < traveler default < global by_date < traveler by_date.
+time_rules:
+  outbound:
+    default: {latest_arrival: "20:00", earliest_departure: "08:00"}   # no outbound landing after 20:00
+  return:
+    default: {earliest_departure: "12:00"}   # return flights only in the afternoon/evening
+
+filters:
+  max_stops: 1                   # 0 = direct only
+  max_duration_hours: null       # cap on total flight time incl. layovers (null = no cap)
+  min_layover_minutes: 60
+  max_layover_minutes: 300
+  carry_on_bags: 0               # bag fees added to the price (matters for low-cost airlines)
+  checked_bags: 0
+  hide_self_transfer: false      # show self-transfer (separate tickets) connections...
+  self_transfer_min_layover_minutes: 120   # ...but only with at least 2h to change
+  exclude_basic_economy: false
+  seat: economy                  # economy | premium-economy | business | first
+
+ranking:
+  sort_by: total_price           # total_price | score
+  # score_weights are only used with sort_by: score, which ranks by
+  #   price + travel_hour × hours flown + stop × connections − hour_together × hours together
+  # i.e. "how many euros would I pay to fly 1h less / avoid a stop / get 1h more together".
+  # score_weights: {eur_per_travel_hour: 10, eur_per_stop: 20, eur_per_hour_together: 5}
+  max_arrival_gap_hours: 4       # outbound: both must land in the city within this many hours of each other
+  max_departure_gap_hours: 4    # return: both flights home must take off within this many hours of each other
+  options_per_leg: 15            # cheapest N flights per leg kept for combining (higher = finds more
+                                 # time-matched pairs when gap limits are set, but slower ranking)
+  top_combos_per_city: 3         # alternatives listed per city in each window file
+  csv_combos_per_city: 50        # rows per city per window in the CSV files
+  summary_top_overall: 30        # size of the "Top overall" table in SUMMARY.md
+  summary_overall_max_per_city_dates: 3   # ...with at most this many variants of the same city + dates
+  summary_top_per_city: 5        # size of each "Top by city" table
+
+search:
+  delay_seconds: [0.1, 0.5]          # random pause between requests (be gentle to avoid blocks)
+  cache_ttl_hours: 6             # re-runs within this time reuse fetched results
+  retries: 3                     # quick retries for ordinary errors (network, bad page)
+  block_wait_minutes: [2, 5, 10, 15]   # if Google blocks us: wait 2, then 5, 10, 15, 15... min between tries
+  block_max_wait_minutes: 90     # give up after this much total waiting; partial results are still written
+  language: en-GB
+  proxy: null
+
+output_dir: results

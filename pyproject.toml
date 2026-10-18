@@ -1,0 +1,23 @@
+[project]
+name = "flight-planner"
+version = "0.1.0"
+description = "Search and rank same-day trips for two travelers departing from different airports."
+requires-python = ">=3.11"
+dependencies = [
+    "fast-flights>=3.1,<4",
+    "pydantic>=2.5",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8"]
+
+[project.scripts]
+flight-planner = "flight_planner.cli:main"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["flight_planner*"]
